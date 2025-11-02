@@ -13,6 +13,7 @@ import FinalSequence from './components/FinalSequence'
 import CompareLetters from './components/CompareLetters'
 import ReturnArrows from './components/ReturnArrows'
 import CompletionToast from './components/CompletionToast'
+import { Analytics } from '@vercel/analytics/react'
 
 function App() {
   const { mode } = useAnimationController()
@@ -153,6 +154,7 @@ function App() {
       <footer>
         <ControlPanel />
       </footer>
+      <Analytics />
     </div>
   )
 }
