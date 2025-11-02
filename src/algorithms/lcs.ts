@@ -137,5 +137,26 @@ export function generateStepsMemo(x: string, y: string): AlgorithmEvent[] {
     }
   }
 
+  // Ensure the root (n,m) reports a return (call_end) even if served via memo-hit
+  const hasRootReturn = steps.some((e) => e.type === 'call_end' && e.i === n && e.j === m)
+  const rootVal = memo[n]?.[m] ?? 0
+  if (!hasRootReturn) {
+    steps.push({ type: 'call_end', id: id('finalEnd', n, m), i: n, j: m, value: rootVal })
+  }
+
+  // Ensure the final answer at (n,m) animates into the DP grid at least once
+  const hasFinalTransfer = steps.some(
+    (e) => e.type === 'transfer' && e.to.kind === 'cell' && e.to.i === n && e.to.j === m
+  )
+  if (!hasFinalTransfer && n >= 0 && m >= 0) {
+    steps.push({ type: 'transfer', id: id('finalToCell', n, m), from: { kind:'node', i:n, j:m }, to: { kind:'cell', i:n, j:m }, value: rootVal })
+  }
+
+  // Ensure the grid also gets explicitly set at (n,m) so it shows even when paused on the last step
+  const hasFinalSet = steps.some((e) => e.type === 'dp_set' && e.i === n && e.j === m)
+  if (!hasFinalSet && n >= 0 && m >= 0) {
+    steps.push({ type: 'dp_set', id: id('finalSet', n, m), i: n, j: m, value: rootVal })
+  }
+
   return steps
 }

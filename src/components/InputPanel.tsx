@@ -3,7 +3,7 @@ import { useAnimationController } from '../context/AnimationController'
 import { generateStepsDP, generateStepsMemo } from '../algorithms/lcs'
 
 export default function InputPanel() {
-  const { mode, loadSteps } = useAnimationController()
+  const { mode, loadSteps, play } = useAnimationController()
   const [x, setX] = useState('ABC')
   const [y, setY] = useState('BDC')
   const [showLegend, setShowLegend] = useState(false)
@@ -11,6 +11,8 @@ export default function InputPanel() {
   const onVisualize = () => {
     const steps = mode === 'dp' ? generateStepsDP(x, y) : generateStepsMemo(x, y)
     loadSteps(steps)
+    // Kick off playback on next tick so steps are committed
+    setTimeout(() => play(), 0)
   }
 
   return (

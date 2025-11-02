@@ -57,27 +57,16 @@ export default function DPGrid() {
       if (!e) continue
       if (e.type === 'dp_set') {
         grid[e.i][e.j].value = e.value
-        // Clear deps after a value materializes so neighbour borders disappear after step 4
-        deps = []
-      }
-      // Show value from transfers only after the transfer animation has played.
-      // That is, apply transfer->cell values from prior steps, not the current step.
-      if (e.type === 'transfer' && e.to.kind === 'cell') {
-        if (k < stepIndex) {
-          grid[e.to.i][e.to.j].value = e.value
-        } else if (k === stepIndex) {
-          // Current step is transfer: stop neighbour glow immediately
-          deps = []
-        }
-      }
-      if (e.type === 'dp_compute') {
-        // Only mark as active for comparison when inside the letter area
+      } else if (e.type === 'transfer' && e.to.kind === 'cell' && mode === 'memo' && k < stepIndex) {
+        // Populate after the transfer step has passed, so value appears once the animation completes
+        grid[e.to.i][e.to.j].value = e.value
+      } else if (e.type === 'dp_compute') {
         if (e.i > 0 && e.j > 0) active = { i: e.i, j: e.j }
         deps = e.deps ?? []
       }
     }
     return { grid, active, deps }
-  }, [steps, stepIndex, n, m])
+  }, [steps, stepIndex, n, m, mode])
 
   const cells = useMemo(() => Array.from({ length: (n + 1) * (m + 1) }, (_, idx) => ({ i: Math.floor(idx / (m + 1)), j: idx % (m + 1) })), [n, m])
   const isActive = (i: number, j: number) => active?.i === i && active?.j === j

@@ -27,10 +27,15 @@ function App() {
   return (
     <div className="h-full flex flex-col bg-gray-50 text-gray-900">
       {/* Header */}
-      <header className="border-b bg-white">
+      <header className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
           <div className="flex items-center">
-            <h1 className="px-3 py-3 text-2xl font-semibold">LCS Visualizer</h1>
+            <a 
+        href="http://lcsvisualizer.vercel.app" 
+        className="px-0 py-3 text-2xl font-semibold hover:no-underline cursor-pointer"
+      >
+        LCS Visualizer
+      </a>
             <ModeToggle />
           </div>
           <InputPanel />

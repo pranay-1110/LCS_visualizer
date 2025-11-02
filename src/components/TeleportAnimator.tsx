@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAnimationController } from '../context/AnimationController'
 import { useAnchors } from '../context/Anchors'
-import { useMemo, useEffect, useState } from 'react'
+import { useMemo, useEffect, useState, useRef } from 'react'
 
 export default function TeleportAnimator() {
   const { steps, stepIndex, speed } = useAnimationController()
@@ -15,6 +15,8 @@ export default function TeleportAnimator() {
 
   // Persist the last transfer overlay long enough to finish the animation
   const [sticky, setSticky] = useState<{ idx: number; speedAt: number } | null>(null)
+  // Remember the last fully rendered transfer key to avoid duplicate animations
+  const lastKeyRef = useRef<string | null>(null)
   useEffect(() => {
     if (transfer) {
       setSticky({ idx: stepIndex, speedAt: speed })
@@ -40,18 +42,31 @@ export default function TeleportAnimator() {
   }, [transfer, !!sticky])
 
   const activeIdx = transfer ? stepIndex : sticky?.idx
-  if (activeIdx == null) return null
-  const e = steps[activeIdx]
-  if (e?.type !== 'transfer') return null
+  const e = activeIdx != null ? steps[activeIdx] : undefined
 
-  const fromName = `${e.from.kind}-${e.from.i}-${e.from.j}`
-  const toName = `${e.to.kind}-${e.to.i}-${e.to.j}`
+  // Build names and a stable key even when not renderable
+  const fromName = e?.type === 'transfer' ? `${e.from.kind}-${e.from.i}-${e.from.j}` : ''
+  const toName = e?.type === 'transfer' ? `${e.to.kind}-${e.to.i}-${e.to.j}` : ''
+  const chip = e?.type === 'transfer' ? `${e.value}` : ''
+  const key = e?.type === 'transfer' ? `${fromName}->${toName}-${chip}-${activeIdx}` : `no-transfer-${activeIdx ?? -1}`
+
+  // Determine if this would be a duplicate animation for the exact same transfer
+  const isDuplicate = !!transfer && e?.type === 'transfer' && lastKeyRef.current === key
+
+  // Update lastKeyRef whenever a new transfer key appears
+  useEffect(() => {
+    if (!!transfer && e?.type === 'transfer') {
+      lastKeyRef.current = key
+    }
+  }, [key, !!transfer, e?.type])
+
+  // Now resolve anchor positions and perform early returns (after all hooks above)
+  if (activeIdx == null) return null
+  if (e?.type !== 'transfer') return null
   const from = anchors.getCenter(fromName)
   const to = anchors.getCenter(toName)
   if (!from || !to) return null
-
-  const chip = `${e.value}`
-  const key = `${fromName}->${toName}-${chip}-${activeIdx}`
+  if (isDuplicate) return null
 
   // Compute duration scaled by playback speed (faster playback => shorter anim)
   const speedForDur = transfer ? speed : (sticky?.speedAt ?? speed)
@@ -107,11 +122,11 @@ export default function TeleportAnimator() {
         {e.to.kind === 'cell' && (
           <motion.div
             key={`${key}-pulse`}
-            initial={{ opacity: 0, scale: 0.6, x: to.x, y: to.y, position: 'fixed' as const }}
-            animate={{ opacity: [0, 0.8, 0], scale: [0.6, 1.15, 1] }}
-            transition={{ duration: Math.max(0.25, duration * 0.6), ease: 'easeOut', delay: Math.max(0, duration * 0.85) }}
-            style={{ pointerEvents: 'none', zIndex: 35 }}
-            className="-translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full border-2 border-emerald-500"
+            initial={{ opacity: 0, scale: 0.55, x: to.x, y: to.y, position: 'fixed' as const }}
+            animate={{ opacity: [0, 0.95, 0], scale: [0.55, 1.25, 1] }}
+            transition={{ duration: Math.max(0.28, duration * 0.7), ease: 'easeOut', delay: Math.max(0, duration * 0.8) }}
+            style={{ pointerEvents: 'none', zIndex: 35, boxShadow: '0 0 0 6px rgba(16,185,129,0.35), 0 0 18px rgba(16,185,129,0.45)' }}
+            className="-translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full border-2 border-emerald-500 bg-emerald-50/40"
           />
         )}
         {e.to.kind === 'node' && (
