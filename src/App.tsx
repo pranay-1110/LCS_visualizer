@@ -29,13 +29,13 @@ function App() {
     <div className="h-full flex flex-col bg-gray-50 text-gray-900">
       {/* Header */}
       <header className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200 shadow-sm">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between">
+        <div className="w-full flex flex-wrap items-center justify-between px-4">
           <div className="flex items-center">
             <a 
         href="http://lcsvisualizer.vercel.app" 
-        className="px-0 py-3 text-2xl font-semibold hover:no-underline cursor-pointer"
+        className="px-4 py-3 text-2xl font-semibold hover:no-underline cursor-pointer"
       >
-        LCS Visualizer
+        Longest Common Subsequence Visualizer
       </a>
             <ModeToggle />
           </div>
