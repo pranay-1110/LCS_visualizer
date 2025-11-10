@@ -14,6 +14,7 @@ import CompareLetters from './components/CompareLetters'
 import ReturnArrows from './components/ReturnArrows'
 import CompletionToast from './components/CompletionToast'
 import { Analytics } from '@vercel/analytics/react'
+import { Link } from "react-router-dom";
 
 function App() {
   const { mode } = useAnimationController()
@@ -26,17 +27,25 @@ function App() {
   }, [])
 
   return (
-    <div className="h-full flex flex-col bg-gray-50 text-gray-900">
+    <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
       {/* Header */}
       <header className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200 shadow-sm">
         <div className="w-full flex flex-wrap items-center justify-between px-4">
           <div className="flex items-center">
+            
             <a 
         href="http://lcsvisualizer.vercel.app" 
         className="px-4 py-3 text-2xl font-semibold hover:no-underline cursor-pointer"
       >
         Longest Common Subsequence Visualizer
       </a>
+      <Link
+        to="/learn"
+        className={`ml-4 text-sm px-4 py-1.5 border rounded transform transform-gpu antialiased transition-all duration-200 ease-out hover:scale-[1.01] hover:shadow-sm active:scale-[0.985] active:shadow-inner`}
+        style={{ backfaceVisibility: 'hidden' }}
+      >
+        Learn
+      </Link>
             <ModeToggle />
           </div>
           <InputPanel />
@@ -151,9 +160,12 @@ function App() {
       )}
 
       {/* Footer controls */}
-      <footer>
-        <ControlPanel />
-      </footer>
+<footer className="mt-auto w-full border-t bg-white">
+  <div className="px-0 py-0">
+    <ControlPanel />
+  </div>
+</footer>
+ 
       <Analytics />
     </div>
   )
